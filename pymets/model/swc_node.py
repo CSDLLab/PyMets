@@ -11,6 +11,45 @@ import numpy as np
 _3D = "3d"
 _2D = "2d"
 
+
+# input node id of two swc_node，calculate LCA
+def get_lca(u, v):
+    tmp_set = set()
+    tmp_u = u
+    tmp_v = v
+    while u.get_id() != -1:
+        tmp_set.add(u.get_id())
+        u = u.parent
+
+    while v.get_id() != -1:
+        if v.get_id() in tmp_set:
+            return v.get_id()
+        v = v.parent
+    return None
+
+
+# get bounding box of a segment
+def get_bounds(point_a, point_b, extra = 0):
+    point_a = np.array(point_a._pos)
+    point_b = np.array(point_b._pos)
+    res = (np.where(point_a>point_b,point_b,point_a) - extra).tolist() + (np.where(point_a>point_b,point_a,point_b) + extra).tolist()
+
+    return tuple(res)
+
+
+def add_mid_node(rtree, id_edge_dict, son, parent, new_node):
+    rtree.delete(son.get_id(), get_bounds(son, son.parent, extra=son.radius()))
+
+    son.parent = new_node
+    new_node.parent = parent
+
+    rtree.insert(son.get_id(), get_bounds(son, son.parent, extra=son.radius()))
+    rtree.insert(new_node.get_id(), get_bounds(new_node, new_node.parent, extra=new_node.radius()))
+
+    id_edge_dict[son.get_id()] = tuple([son, son.parent])
+    id_edge_dict[new_node.get_id()] = tuple([new_node, new_node.parent])
+
+
 def Make_Virtual():
     return SwcNode(nid=-1)
 
@@ -222,6 +261,20 @@ class SwcNode(NodeMixin):
     def get_parent_id(self):
         return -2 if self.is_root else self.parent.get_id()
 
+    def add_child(self, swc_node):
+        if not isinstance(swc_node, SwcNode):
+            return False
+        children = list(self.children)
+        children.append(swc_node)
+        self.children = tuple(children)
+
+    def remove_child(self, swc_node):
+        if not isinstance(swc_node, SwcNode):
+            return False
+        children = list(self.children)
+        children.remove(swc_node)
+        self.children = tuple(children)
+
     def __str__(self):
         return '%d (%d): %s, %g' % (self._id, self._type, str(self._pos), self._radius)
 
@@ -357,7 +410,17 @@ class SwcTree:
         niter = iterators.PreOrderIter(self._root)
         result = 0
         for tn in niter:
-            result += tn.parent_distance()
+            #dededebug
+            # if tn.parent is None:
+            #     print("tn = {} tn.pa = None dis = {}".format(
+            #         tn.get_id(), tn.parent_distance()
+            #     ))
+            # else:
+            #     print("tn = {} tn.pa = {} dis = {}".format(
+            #         tn.get_id(),tn.parent.get_id(),tn.parent_distance()
+            #     ))
+            if tn.parent is not None and tn.get_id() > tn.parent.get_id():
+                result += tn.parent_distance()
 
         return result
 
@@ -388,24 +451,6 @@ class SwcTree:
                     self.lca_parent[v][k + 1] = self.lca_parent[int(self.lca_parent[v][k])][k]
         return True
 
-    # input node id of two swc_node，calculate LCA
-    def get_lca(self, u, v):
-        lca_parent = self.lca_parent
-        LOG_NODE_NUM = self.LOG_NODE_NUM
-        depth_array = self.depth_array
-
-        if depth_array[u] > depth_array[v]:
-            u,v = v,u
-        for k in range(LOG_NODE_NUM):
-            if depth_array[v] - depth_array[u] >> k & 1:
-                v = lca_parent[v][k]
-        if u == v:
-            return u
-        for k in range(LOG_NODE_NUM -1,-1,-1):
-            if lca_parent[u][k] != lca_parent[v][k]:
-                u = lca_parent[u][k]
-                v = lca_parent[v][k]
-        return lca_parent[u][0]
 
     def align_roots(self, gold_tree, mode="average", DEBUG=False):
         offset = EuclideanPoint()
@@ -444,8 +489,20 @@ class SwcTree:
 
 
 if __name__ == '__main__':
-    print('testing ...')
-    tree = SwcTree()
-    tree.load("D:\gitProject\mine\PyMets\\test\data_example\gold\gold.swc")
-    tree.get_lca_preprocess()
-    print(tree.get_lca(2,6))
+    # print('testing ...')
+    # tree = SwcTree()
+    # tree.load("D:\gitProject\mine\PyMets\\test\data_example\gold\gold.swc")
+    # tree.get_lca_preprocess()
+    # print(tree.get_lca(2,6))
+
+    # tree = SwcTree()
+    # tree.load("D:\gitProject\mine\PyMets\\test\data_example\gold\gold.swc")
+    # node = tree.root()
+    # tmp = list(node.children)
+    # # tmp.pop()
+    #
+    # node.children = tuple(tmp)
+    # tmp = [node for node in PreOrderIter(tree.root())]
+    # for node in tmp:
+    #     print(node.get_id())
+    pass

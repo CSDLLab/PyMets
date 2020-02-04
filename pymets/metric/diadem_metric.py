@@ -146,7 +146,6 @@ def generate_node_weights(bin_root, spur_set, DEBUG=False):
 
 def is_diadem_match(gold_node, nearby_node, bin_gold_list, bin_test_list, DEBUG=False):
     #debug:
-    print(gold_node.data.get_id())
     length_diff = get_match_path_length_difference(gold_node, nearby_node, bin_gold_list, bin_test_list)
     if DEBUG:
         print("gold_node = {}, test_node = {}, length_diff = {}".format(
@@ -780,8 +779,8 @@ def diadem_metric(swc_gold_tree, swc_test_tree, config):
 if __name__ == "__main__":
     testTree = SwcTree()
     goldtree = SwcTree()
-    testTree.load("D:\gitProject\mine\PyMets\\test\data_example\\test\\34_23_10_test.swc")
-    goldtree.load("D:\gitProject\mine\PyMets\\test\data_example\gold\\34_23_10_gold.swc")
+    testTree.load("D:\gitProject\mine\PyMets\\test\data_example\\test\\30_18_10_test.swc")
+    goldtree.load("D:\gitProject\mine\PyMets\\test\data_example\gold\\30_18_10_gold.swc")
     # goldtree.load("D:\gitProject\mine\PyMets\\test\data_example\\gold\\ExampleGoldStandard.swc")
     # testTree.load("D:\gitProject\mine\PyMets\\test\data_example\\test\\ExampleTest.swc")
     get_default_threshold(goldtree)

@@ -114,7 +114,9 @@ def pymets(DEBUG=True):
                           swc_gold_tree=gold_swc_treeroot,
                           config=read_json("D:\gitProject\mine\PyMets\config\diadem_metric.json"))
             if reverse:
-                diadem_metric(gold_swc_treeroot, test_swc_treeroot)
+                diadem_metric(swc_test_tree=gold_swc_treeroot,
+                              swc_gold_tree=test_swc_treeroot,
+                              config=read_json("D:\gitProject\mine\PyMets\config\diadem_metric.json"))
         if metric == "overall_length" or metric == "OL":
             config["method"] = 1
             length_metric(gold_swc_treeroot, test_swc_treeroot,

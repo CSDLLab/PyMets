@@ -40,7 +40,9 @@ class EuclideanPoint(object):
         p = np.array(self._pos)
         a = np.array(line.coords[0])
         b = np.array(line.coords[1])
-
+        if (np.abs(a-b) < 1e-8).all():
+            print(a-b)
+            return EuclideanPoint(a.tolist())
         k = -((a - p).dot(b - a)) / (((b - a) ** 2).sum())
         foot = k * (b - a) + a
         return EuclideanPoint(foot.tolist())

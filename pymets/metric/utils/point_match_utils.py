@@ -91,8 +91,7 @@ def get_match_edges_p(gold_swc_tree=None, test_swc_tree=None, knn=3, DEBUG=False
         print(len(match_edge))
     return match_edge
 
-# for diadem metric
-# def find
+
 if __name__ == "__main__":
     goldtree = SwcTree()
     goldtree.load("D:\gitProject\mine\PyMets\\test\data_example\gold\\ExampleGoldStandard.swc")
